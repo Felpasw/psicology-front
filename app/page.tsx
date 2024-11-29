@@ -10,9 +10,16 @@ interface login {
 
 export default function Home() {
   const [login, setLogin] = useState({} as login)
+  const [apiReponse, setApiResponse] = useState({} as login)
 
   const submit = async () => {
     const response = await POST('/login', login)
+
+    if (response.error) {
+      setApiResponse(response.data)
+    } else {
+      window.location.href = '/dashboard'
+    }
   }
 
   return (
@@ -21,12 +28,16 @@ export default function Home() {
       <Input
         type='email'
         label='Email'
+        isInvalid={!!apiReponse.email}
+        errorMessage={apiReponse.email}
         value={login.email}
         onChange={(e) => setLogin({ ...login, email: e.target.value })}
       />
       <Input
         type='password'
         label='Senha'
+        isInvalid={!!apiReponse.password}
+        errorMessage={apiReponse.password}
         value={login.password}
         onChange={(e) => setLogin({ ...login, password: e.target.value })}
       />
