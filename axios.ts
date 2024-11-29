@@ -2,7 +2,7 @@ import { baseURL } from './globals'
 import axios from 'axios'
 
 const axiosInstance = axios.create({
-  baseURL,
+  baseURL: 'http://localhost:4000',
   withCredentials: true,
 })
 

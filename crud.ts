@@ -25,10 +25,12 @@ export const POST = async (route: string, object: object, headers = {}) => {
       return { ...res.data, status: res.status }
     })
     .catch((err) => {
+      console.log(err)
+
       return {
         error: true,
         ...err.response,
-        status: err.response.status,
+        // status: err.response.status,
       }
     })
   return result
