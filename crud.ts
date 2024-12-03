@@ -4,7 +4,7 @@ export const GET = async (route: string, params = {}) => {
   const result = await axiosInstance
     .get(route, params)
     .then((res) => {
-      return { ...res.data, status: res.status }
+      return res.data
     })
     .catch((err) => {
       console.error(err)
@@ -22,7 +22,7 @@ export const POST = async (route: string, object: object, headers = {}) => {
   const result = await axiosInstance
     .post(route, object, { headers })
     .then((res) => {
-      return { ...res.data, status: res.status }
+      return res.data
     })
     .catch((err) => {
       console.log(err)
@@ -41,7 +41,7 @@ export const PUT = async (route: string, object: object, headers = {}) => {
   const result = await axiosInstance
     .put(route, object, { headers })
     .then((res) => {
-      return { ...res.data, status: res.status }
+      return res.data
     })
     .catch((err) => {
       return {
@@ -53,11 +53,11 @@ export const PUT = async (route: string, object: object, headers = {}) => {
   return result
 }
 
-export const DELETE = async (route: string, body: object) => {
+export const DELETE = async (route: string, body?: object) => {
   const result = await axiosInstance
     .delete(route, { data: body })
     .then((res) => {
-      return { ...res.data, status: res.status }
+      return res.data
     })
     .catch((err) => {
       return {
