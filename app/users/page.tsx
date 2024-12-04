@@ -52,16 +52,6 @@ export default function Users() {
     getUsers()
   }, [])
 
-  const edit = async () => {
-    const response = await PUT(`/users/${currentUser._id}`, currentUser)
-  }
-  const remove = async () => {
-    const response = await DELETE(`/users/${currentUser._id}`)
-  }
-  const insert = async () => {
-    const response = await POST(`/users`, currentUser)
-  }
-
   const getUsers = async () => {
     const response = await GET('/users')
     setUsers(response)
@@ -153,7 +143,13 @@ export default function Users() {
                 <Button color='danger' variant='light' onClick={() => setModal({ ...modal, edit: false })}>
                   Cancelar
                 </Button>
-                <Button color='primary' onClick={() => (currentUser && currentUser._id ? edit() : insert())}>
+                <Button
+                  color='primary'
+                  onClick={async () =>
+                    currentUser && currentUser._id
+                      ? await PUT(`/users/${currentUser._id}`, currentUser)
+                      : await POST(`/users`, currentUser)
+                  }>
                   Enviar
                 </Button>
               </ModalFooter>
@@ -176,7 +172,7 @@ export default function Users() {
                 <Button color='danger' variant='light' onPress={onClose}>
                   Cancelar
                 </Button>
-                <Button color='primary' onPress={remove}>
+                <Button color='primary' onPress={async () => await DELETE(`/users/${currentUser._id}`)}>
                   Remover
                 </Button>
               </ModalFooter>
