@@ -32,12 +32,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head />
       <body className={clsx('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
         <Providers themeProps={{ attribute: 'class', defaultTheme: 'dark' }}>
-          <div className='relative flex flex-col h-screen'>
-            <main className='container mx-auto max-w-7xl   flex-grow'>{children}</main>
-            <footer className='w-full flex items-center justify-center py-3'>
+          <div className='relative flex flex-col h-screen overflow-y-hidden'>
+            <main className='flex-grow'>{children}</main>
+            <footer className='w-full flex items-center justify-center py-3 fixed bottom-0 text-sm'>
               <Link
                 isExternal
-                className='flex items-center gap-1 text-current'
+                className=' flex items-center gap-1 text-current'
                 href='https://github.com/Felpasw/psicology-front'
                 title='Psicology Management'>
                 <span className='text-default-600'>Psicology Management</span>
