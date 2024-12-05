@@ -18,7 +18,7 @@ import {
   Input,
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
-import { FaLock, FaEdit } from 'react-icons/fa'
+import { FaLock, FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { MdDelete } from 'react-icons/md'
 
 interface user {
@@ -32,12 +32,23 @@ interface user {
 interface ModalStates {
   edit: boolean
   remove: boolean
+  password: boolean
 }
 
 const zeroState: user = {
   password: '',
   username: '',
   email: '',
+}
+
+interface password {
+  password: string
+  confirmPassowrd: string
+}
+
+interface passwordVisible {
+  password: boolean
+  confirmPassword: boolean
 }
 
 export default function Users() {
@@ -47,6 +58,11 @@ export default function Users() {
     remove: false,
   } as ModalStates)
   const [currentUser, setCurrentUser] = useState({} as user)
+  const [password, setPassword] = useState({} as password)
+  const [passwordVisible, setPasswordVisible] = useState({
+    password: false,
+    confirmPassword: false,
+  } as passwordVisible)
 
   useEffect(() => {
     getUsers()
@@ -92,7 +108,12 @@ export default function Users() {
                           <div className='relative flex items-center gap-2'>
                             <Tooltip content='Alterar senha'>
                               <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
-                                <FaLock />
+                                <FaLock
+                                  onClick={() => {
+                                    setCurrentUser(item)
+                                    setModal({ ...modal, password: true })
+                                  }}
+                                />
                               </span>
                             </Tooltip>
                             <Tooltip content='Editar'>
@@ -178,6 +199,70 @@ export default function Users() {
               </ModalFooter>
             </>
           )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={modal.password} onClose={() => setModal({ ...modal, password: false })}>
+        <ModalContent>
+          <ModalBody>
+            <>
+              <ModalHeader className='flex gap-2 items-center'>
+                Alterar senha de
+                <b> {currentUser.username} </b>
+              </ModalHeader>
+
+              <Input
+                type={passwordVisible.password ? 'text' : 'password'}
+                label='Senha'
+                value={password.password}
+                endContent={
+                  <button
+                    className='focus:outline-none'
+                    type='button'
+                    onClick={() => {
+                      setPasswordVisible({ ...passwordVisible, password: !passwordVisible.password })
+                    }}
+                    aria-label='toggle password visibility'>
+                    {passwordVisible.password ? (
+                      <FaEye className='text-2xl text-default-400 pointer-events-none' />
+                    ) : (
+                      <FaEyeSlash className='text-2xl text-default-400 pointer-events-none' />
+                    )}
+                  </button>
+                }
+                onChange={(e) => setPassword({ ...password, password: e.target.value })}
+              />
+              <Input
+                type={passwordVisible.confirmPassword ? 'text' : 'password'}
+                label='Confirmar senha'
+                value={password.confirmPassowrd}
+                endContent={
+                  <button
+                    className='focus:outline-none'
+                    type='button'
+                    onClick={() => {
+                      setPasswordVisible({ ...passwordVisible, confirmPassword: !passwordVisible.confirmPassword })
+                    }}
+                    aria-label='toggle password visibility'>
+                    {passwordVisible.confirmPassword ? (
+                      <FaEye className='text-2xl text-default-400 pointer-events-none' />
+                    ) : (
+                      <FaEyeSlash className='text-2xl text-default-400 pointer-events-none' />
+                    )}
+                  </button>
+                }
+                onChange={(e) => setPassword({ ...password, confirmPassowrd: e.target.value })}
+              />
+
+              <ModalFooter>
+                <Button color='danger' variant='light' onClick={() => setModal({ ...modal, password: false })}>
+                  Cancelar
+                </Button>
+                <Button color='primary' onClick={async () => await POST(`/change-password`, password)}>
+                  Enviar
+                </Button>
+              </ModalFooter>
+            </>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </AuthenticatedLayout>
