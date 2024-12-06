@@ -43,12 +43,19 @@ const zeroState: user = {
 
 interface password {
   password: string
-  confirmPassowrd: string
+  confirmPassword: string
 }
 
 interface passwordVisible {
   password: boolean
   confirmPassword: boolean
+}
+
+interface errors {
+  password: string,
+  confirmPassword: string,
+  email: string,
+  username: string,
 }
 
 export default function Users() {
@@ -63,6 +70,7 @@ export default function Users() {
     password: false,
     confirmPassword: false,
   } as passwordVisible)
+  const [errors, setErrors] = useState({} as errors)
 
   useEffect(() => {
     getUsers()
@@ -72,6 +80,12 @@ export default function Users() {
     const response = await GET('/users')
     setUsers(response)
   }
+
+  const requestMethods = {
+
+  }
+
+
 
   const headers = ['Usuário', 'Email', 'Ações']
   const fields = ['username', 'email', 'action']
@@ -159,7 +173,52 @@ export default function Users() {
                 value={currentUser.email}
                 onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })}
               />
-
+              {!currentUser._id &&
+                <>
+                  <Input
+                    type={passwordVisible.password ? 'text' : 'password'}
+                    label='Senha'
+                    value={password.password}
+                    endContent={
+                      <button
+                        className='focus:outline-none'
+                        type='button'
+                        onClick={() => {
+                          setPasswordVisible({ ...passwordVisible, password: !passwordVisible.password })
+                        }}
+                        aria-label='toggle password visibility'>
+                        {passwordVisible.password ? (
+                          <FaEye className='text-2xl text-default-400 pointer-events-none' />
+                        ) : (
+                          <FaEyeSlash className='text-2xl text-default-400 pointer-events-none' />
+                        )}
+                      </button>
+                    }
+                    onChange={(e) => setPassword({ ...password, password: e.target.value })}
+                  />
+                  <Input
+                    type={passwordVisible.confirmPassword ? 'text' : 'password'}
+                    label='Confirmar senha'
+                    value={password.confirmPassword}
+                    endContent={
+                      <button
+                        className='focus:outline-none'
+                        type='button'
+                        onClick={() => {
+                          setPasswordVisible({ ...passwordVisible, confirmPassword: !passwordVisible.confirmPassword })
+                        }}
+                        aria-label='toggle password visibility'>
+                        {passwordVisible.confirmPassword ? (
+                          <FaEye className='text-2xl text-default-400 pointer-events-none' />
+                        ) : (
+                          <FaEyeSlash className='text-2xl text-default-400 pointer-events-none' />
+                        )}
+                      </button>
+                    }
+                    onChange={(e) => setPassword({ ...password, confirmPassword: e.target.value })}
+                  />
+                </>
+              }
               <ModalFooter>
                 <Button color='danger' variant='light' onClick={() => setModal({ ...modal, edit: false })}>
                   Cancelar
@@ -169,7 +228,7 @@ export default function Users() {
                   onClick={async () =>
                     currentUser && currentUser._id
                       ? await PUT(`/users/${currentUser._id}`, currentUser)
-                      : await POST(`/users`, currentUser)
+                      : await POST(`/users`, { ...currentUser, ...password })
                   }>
                   Enviar
                 </Button>
@@ -234,7 +293,7 @@ export default function Users() {
               <Input
                 type={passwordVisible.confirmPassword ? 'text' : 'password'}
                 label='Confirmar senha'
-                value={password.confirmPassowrd}
+                value={password.confirmPassword}
                 endContent={
                   <button
                     className='focus:outline-none'
@@ -250,7 +309,7 @@ export default function Users() {
                     )}
                   </button>
                 }
-                onChange={(e) => setPassword({ ...password, confirmPassowrd: e.target.value })}
+                onChange={(e) => setPassword({ ...password, confirmPassword: e.target.value })}
               />
 
               <ModalFooter>
