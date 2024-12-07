@@ -72,13 +72,19 @@ export default function Pacients() {
 
     },
     postPatients: async () => {
+      console.log('cuuuuu');
+
       const response = await POST(`/patients`, currentPatient)
+      console.log('response');
+
+      console.log(response);
+
       setErrors(response.data ? response.data : {} as errors)
       await requestMethods.getPatients()
 
     },
     deletePatient: async () => {
-      await DELETE(`/users/${currentPatient._id}`)
+      await DELETE(`/patients/${currentPatient._id}`)
       await requestMethods.getPatients()
       setModal({ ...modal, remove: false })
     }
@@ -153,22 +159,29 @@ export default function Pacients() {
             <>
               <Input
                 label='Nome'
+                errorMessage={errors.name}
+                isInvalid={!!errors.name}
                 value={currentPatient.name}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, name: e.target.value })}
               />
               <Input
                 type='email'
+                errorMessage={errors.email}
+                isInvalid={!!errors.email}
                 label='Email'
                 value={currentPatient.email}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, email: e.target.value })}
               />
               <Input
                 label='CPF'
+                errorMessage={errors.CPF}
+                isInvalid={!!errors.CPF}
                 value={currentPatient.CPF}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, CPF: e.target.value })}
               />
               <Input
-                type='number'
+                errorMessage={errors.phoneNumber}
+                isInvalid={!!errors.phoneNumber}
                 label='Número de telefone'
                 value={currentPatient.phoneNumber}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, phoneNumber: e.target.value })}
@@ -176,6 +189,8 @@ export default function Pacients() {
               <Input
                 type='number'
                 label='Idade'
+                errorMessage={errors.age}
+                isInvalid={!!errors.age}
                 value={currentPatient.age}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, age: Number(e.target.value) })}
               />
