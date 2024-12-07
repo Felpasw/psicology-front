@@ -8,15 +8,17 @@ import { MdDelete } from "react-icons/md";
 
 
 interface patients {
+  _id: string
   CPF: string,
   age: number,
-  createdAt: string,
+  createdAt?: string,
   email: string,
   gender: string,
   name: string,
   phoneNumber: string
-  updatedAt: string,
-  _id: string
+  updatedAt?: string,
+  address?: string,
+
 }
 interface ModalStates {
   edit: boolean,
@@ -26,12 +28,22 @@ interface ModalStates {
 const zeroState: patients = {
   CPF: '',
   age: 0,
-  createdAt: '',
   email: '',
   gender: '',
   name: '',
   phoneNumber: ''
 }
+
+interface errors {
+  CPF: string,
+  age: number,
+  email: string,
+  gender: string,
+  name: string,
+  phoneNumber: string
+  address: string
+}
+
 
 export default function Pacients() {
   const [patients, setPatients] = useState([] as patients[])
@@ -40,27 +52,40 @@ export default function Pacients() {
     remove: false
   } as ModalStates)
   const [currentPatient, setCurrentPatient] = useState({} as patients)
+  const [errors, setErrors] = useState({} as errors)
+
+
 
   useEffect(() => {
-    getPatients()
+    requestMethods.getPatients()
   }, [])
 
+  const requestMethods = {
+    getPatients: async () => {
+      const response = await GET('/patients')
+      setPatients(response)
+    },
+    putPatients: async () => {
+      const response = await PUT(`/patients/${currentPatient._id}`, currentPatient)
+      setErrors(response.data ? response.data : {} as errors)
+      await requestMethods.getPatients()
 
-  const edit = async () => {
-    const response = await PUT(`/patients/${currentPatient._id}`, currentPatient)
+    },
+    postPatients: async () => {
+      const response = await POST(`/patients`, currentPatient)
+      setErrors(response.data ? response.data : {} as errors)
+      await requestMethods.getPatients()
+
+    },
+    deletePatient: async () => {
+      await DELETE(`/users/${currentPatient._id}`)
+      await requestMethods.getPatients()
+      setModal({ ...modal, remove: false })
+    }
 
   }
-  const remove = async () => {
-    const response = await DELETE(`/patients/${currentPatient._id}`)
-  }
-  const insert = async () => {
-    const response = await POST(`/patients`, currentPatient)
-  }
 
-  const getPatients = async () => {
-    const response = await GET('/patients')
-    setPatients(response)
-  }
+
 
 
   const headers = ['CPF', 'Nome', 'Idade', 'Email', 'Telefone', 'Ações']
@@ -72,7 +97,7 @@ export default function Pacients() {
 
         <div className='w-full flex justify-between'>
           <h1 className='text-2xl'>Pacientes</h1>
-          <Button onClick={() => { setCurrentPatient(zeroState), setModal({ ...modal, edit: true }) }}>
+          <Button onClick={() => { setCurrentPatient({} as patients), setModal({ ...modal, edit: true }) }}>
             Novo
           </Button>
         </div>
@@ -158,7 +183,7 @@ export default function Pacients() {
                 <Button color="danger" variant="light" onClick={() => setModal({ ...modal, edit: false })}>
                   Cancelar
                 </Button>
-                <Button color="primary" onClick={() => currentPatient && currentPatient._id ? edit() : insert()}>
+                <Button color="primary" onClick={() => currentPatient && currentPatient._id ? requestMethods.putPatients() : requestMethods.postPatients()}>
                   Enviar
                 </Button>
               </ModalFooter>
@@ -179,7 +204,7 @@ export default function Pacients() {
                 <Button color="danger" variant="light" onPress={onClose}>
                   Cancelar
                 </Button>
-                <Button color="primary" onPress={remove}>
+                <Button color="primary" onPress={() => requestMethods.deletePatient()}>
                   Remover
                 </Button>
               </ModalFooter>

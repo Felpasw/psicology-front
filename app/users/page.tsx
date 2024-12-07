@@ -99,7 +99,7 @@ export default function Users() {
 
     },
     changePassword: async () => {
-      const response = await POST(`/change-password`, password)
+      const response = await POST(`/change-password`, { ...password, _id: currentUser._id })
       setErrors(response.data ? response.data : {} as errors)
 
     },
