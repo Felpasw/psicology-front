@@ -82,6 +82,32 @@ export default function Users() {
   }
 
   const requestMethods = {
+    getUsers: async () => {
+      const response = await GET('/users')
+      setUsers(response)
+    },
+    putUsers: async () => {
+      const response = await PUT(`/users/${currentUser._id}`, currentUser)
+      setErrors(response.data ? response.data : {} as errors)
+      await requestMethods.getUsers()
+
+    },
+    postUsers: async () => {
+      const response = await POST(`/users`, { ...currentUser, ...password })
+      setErrors(response.data ? response.data : {} as errors)
+      await requestMethods.getUsers()
+
+    },
+    changePassword: async () => {
+      const response = await POST(`/change-password`, password)
+      setErrors(response.data ? response.data : {} as errors)
+
+    },
+    deleteUser: async () => {
+      await DELETE(`/users/${currentUser._id}`)
+      await requestMethods.getUsers()
+      setModal({ ...modal, remove: false })
+    }
 
   }
 
@@ -142,7 +168,10 @@ export default function Users() {
                             </Tooltip>
                             <Tooltip color='danger' content='Remover'>
                               <span className='text-lg text-danger cursor-pointer active:opacity-50'>
-                                <MdDelete onClick={() => setModal({ ...modal, remove: true })} />
+                                <MdDelete onClick={() => {
+                                  setModal({ ...modal, remove: true })
+                                  setCurrentUser(item)
+                                }} />
                               </span>
                             </Tooltip>
                           </div>
@@ -164,12 +193,16 @@ export default function Users() {
             <>
               <Input
                 label='Usuário'
+                isInvalid={!!errors.username}
+                errorMessage={errors.username}
                 value={currentUser.username}
                 onChange={(e) => setCurrentUser({ ...currentUser, username: e.target.value })}
               />
               <Input
                 type='email'
                 label='Email'
+                isInvalid={!!errors.email}
+                errorMessage={errors.email}
                 value={currentUser.email}
                 onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })}
               />
@@ -178,6 +211,8 @@ export default function Users() {
                   <Input
                     type={passwordVisible.password ? 'text' : 'password'}
                     label='Senha'
+                    isInvalid={!!errors.password}
+                    errorMessage={errors.password}
                     value={password.password}
                     endContent={
                       <button
@@ -200,6 +235,8 @@ export default function Users() {
                     type={passwordVisible.confirmPassword ? 'text' : 'password'}
                     label='Confirmar senha'
                     value={password.confirmPassword}
+                    isInvalid={!!errors.confirmPassword}
+                    errorMessage={errors.confirmPassword}
                     endContent={
                       <button
                         className='focus:outline-none'
@@ -227,8 +264,8 @@ export default function Users() {
                   color='primary'
                   onClick={async () =>
                     currentUser && currentUser._id
-                      ? await PUT(`/users/${currentUser._id}`, currentUser)
-                      : await POST(`/users`, { ...currentUser, ...password })
+                      ? requestMethods.putUsers()
+                      : requestMethods.postUsers()
                   }>
                   Enviar
                 </Button>
@@ -252,7 +289,7 @@ export default function Users() {
                 <Button color='danger' variant='light' onPress={onClose}>
                   Cancelar
                 </Button>
-                <Button color='primary' onPress={async () => await DELETE(`/users/${currentUser._id}`)}>
+                <Button color='primary' onPress={() => requestMethods.deleteUser()}>
                   Remover
                 </Button>
               </ModalFooter>
@@ -273,6 +310,8 @@ export default function Users() {
                 type={passwordVisible.password ? 'text' : 'password'}
                 label='Senha'
                 value={password.password}
+                isInvalid={!!errors.password}
+                errorMessage={errors.password}
                 endContent={
                   <button
                     className='focus:outline-none'
@@ -294,6 +333,8 @@ export default function Users() {
                 type={passwordVisible.confirmPassword ? 'text' : 'password'}
                 label='Confirmar senha'
                 value={password.confirmPassword}
+                isInvalid={!!errors.confirmPassword}
+                errorMessage={errors.confirmPassword}
                 endContent={
                   <button
                     className='focus:outline-none'
@@ -316,7 +357,7 @@ export default function Users() {
                 <Button color='danger' variant='light' onClick={() => setModal({ ...modal, password: false })}>
                   Cancelar
                 </Button>
-                <Button color='primary' onClick={async () => await POST(`/change-password`, password)}>
+                <Button color='primary' onClick={() => requestMethods.changePassword()}>
                   Enviar
                 </Button>
               </ModalFooter>
