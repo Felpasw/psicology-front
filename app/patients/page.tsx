@@ -1,7 +1,7 @@
 'use client'
 import AuthenticatedLayout from '@/components/AuthenticatedLayout'
 import { DELETE, GET, POST, PUT } from '@/crud'
-import { Modal, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input } from '@nextui-org/react'
+import { Modal, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea, Select, SelectItem } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import { FaEye, FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
@@ -72,13 +72,7 @@ export default function Pacients() {
 
     },
     postPatients: async () => {
-      console.log('cuuuuu');
-
       const response = await POST(`/patients`, currentPatient)
-      console.log('response');
-
-      console.log(response);
-
       setErrors(response.data ? response.data : {} as errors)
       await requestMethods.getPatients()
 
@@ -96,6 +90,8 @@ export default function Pacients() {
 
   const headers = ['CPF', 'Nome', 'Idade', 'Email', 'Telefone', 'Ações']
   const fields = ['cpf', 'name', 'age', 'email', 'phoneNumber', 'action']
+  const genderOptions = [{ key: 'M', label: "Masculino" }, { key: 'F', label: 'Feminino' }, { key: 'O', label: 'Outros' }]
+
 
   return (
     <AuthenticatedLayout>
@@ -159,6 +155,7 @@ export default function Pacients() {
             <>
               <Input
                 label='Nome'
+                isRequired
                 errorMessage={errors.name}
                 isInvalid={!!errors.name}
                 value={currentPatient.name}
@@ -166,6 +163,7 @@ export default function Pacients() {
               />
               <Input
                 type='email'
+                isRequired
                 errorMessage={errors.email}
                 isInvalid={!!errors.email}
                 label='Email'
@@ -174,12 +172,14 @@ export default function Pacients() {
               />
               <Input
                 label='CPF'
+                isRequired
                 errorMessage={errors.CPF}
                 isInvalid={!!errors.CPF}
                 value={currentPatient.CPF}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, CPF: e.target.value })}
               />
               <Input
+
                 errorMessage={errors.phoneNumber}
                 isInvalid={!!errors.phoneNumber}
                 label='Número de telefone'
@@ -189,11 +189,29 @@ export default function Pacients() {
               <Input
                 type='number'
                 label='Idade'
+                isRequired
                 errorMessage={errors.age}
                 isInvalid={!!errors.age}
                 value={currentPatient.age}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, age: Number(e.target.value) })}
               />
+              <Select
+                isInvalid={!!errors.gender}
+                errorMessage={errors.gender}
+                onChange={(e) => setCurrentPatient({ ...currentPatient, gender: e.target.value })}
+                label="Gênero" isRequired >
+                {genderOptions.map((gender) => (
+                  <SelectItem key={gender.key}>{gender.label}</SelectItem>
+                ))}
+              </Select>
+              <Textarea
+                errorMessage={errors.address}
+                isInvalid={!!errors.address}
+                value={currentPatient.address}
+                onChange={(e) => setCurrentPatient({ ...currentPatient, address: e.target.value })}
+
+                label="Endereço" />
+
               <ModalFooter>
                 <Button color="danger" variant="light" onClick={() => setModal({ ...modal, edit: false })}>
                   Cancelar
