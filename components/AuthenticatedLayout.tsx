@@ -1,3 +1,5 @@
+'use client'
+
 import React, { ReactNode } from 'react'
 import { Button } from '@nextui-org/button'
 import SideBar from './SideBar'
