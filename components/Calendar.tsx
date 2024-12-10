@@ -1,10 +1,15 @@
 'use client'
 
 import { Button } from '@nextui-org/button'
-import React, { useState } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import { HiChevronDoubleLeft } from 'react-icons/hi'
 
-const Calendar = () => {
+interface props {
+  setDate: Dispatch<SetStateAction<Date>>
+  date: Date
+}
+
+const Calendar = ({ setDate, date }: props) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const today = new Date()
   const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
@@ -49,7 +54,6 @@ const Calendar = () => {
 
   return (
     <div className='w-1/2 min-h-screen p-12'>
-      {/* Navegação */}
       <div className='flex justify-between items-center mb-4'>
         <Button onClick={handlePreviousMonth}>
           <HiChevronDoubleLeft />
@@ -60,7 +64,6 @@ const Calendar = () => {
         </Button>
       </div>
 
-      {/* Blocos do calendário */}
       <div className='grid grid-cols-7 gap-2'>
         {daysOfWeek.map((item, index) => (
           <div key={index} className='text-center font-bold'>
@@ -70,10 +73,11 @@ const Calendar = () => {
         {daysInMonth.map((day, index) =>
           day ? (
             <div
+              onClick={() => setDate(day)}
               key={day.toISOString()}
-              className={`border p-2 text-center rounded ${
+              className={`border p-2 cursor-pointer text-center rounded ${
                 day.toDateString() === today.toDateString() ? 'bg-blue-500 text-white font-bold' : 'bg-black'
-              }`}>
+              } ${date.toDateString() === day.toDateString() ? 'border-red-500' : ''}`}>
               {day.getDate()}
             </div>
           ) : (
