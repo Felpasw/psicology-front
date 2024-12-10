@@ -45,13 +45,14 @@ export default function Schedule() {
   const [modal, setModal] = useState<modal>({ remove: false, editOrNew: false })
   const [currentSchedule, setCurrentSchedule] = useState<Schedule>({} as Schedule)
   const [errors, setErrors] = useState<string>()
+  const [month, setMonth] = useState<number>()
   const [schedules, setSchedules] = useState<SchedulesBy>({} as SchedulesBy)
 
   const requestMethods = {
     getSchedule: async () => {
-      const month = await GET('/schedules', { date: { month: date.getMonth() } })
-      const day = await GET('/schedules', { date: { day: date.getDay(), month: date.getMonth() } })
-      setSchedules({ month, day })
+      const monthS = await GET('/schedules', { params: { date: { month } } })
+      const day = await GET('/schedules', { params: { date: { day: date.getDay(), month } } })
+      setSchedules({ month: monthS, day })
     },
     putSchedule: async () => {},
     deleteSchedule: async () => {},
@@ -61,16 +62,16 @@ export default function Schedule() {
 
   useEffect(() => {
     requestMethods.getSchedule()
-  }, [date])
+  }, [date, month])
 
   return (
     <AuthenticatedLayout>
       <>
-        <Calendar date={date} setDate={setDate} schedules={schedules.month} />
+        <Calendar date={date} setDate={setDate} schedules={schedules.month} setMonth={setMonth} />
         <div className='text-center w-[30%]'>
           <div className='flex justify-between p-2'>
             <h1 className='text-2xl'>
-              Agenda para o dia{' '}
+              Agenda para o dia
               {`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
             </h1>
             <Button onClick={() => setModal({ ...modal, editOrNew: true })}>Adicionar</Button>

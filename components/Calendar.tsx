@@ -20,9 +20,10 @@ interface props {
   setDate: Dispatch<SetStateAction<Date>>
   date: Date
   schedules: Schedule[]
+  setMonth: Dispatch<SetStateAction<number>>
 }
 
-const Calendar = ({ setDate, date, schedules }: props) => {
+const Calendar = ({ setDate, date, schedules, setMonth }: props) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const today = new Date()
   const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
@@ -73,11 +74,13 @@ const Calendar = ({ setDate, date, schedules }: props) => {
   const handleNextMonth = () => {
     const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     setCurrentDate(nextMonth)
+    setMonth(currentDate.getMonth() + 2)
   }
 
   const handlePreviousMonth = () => {
     const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     setCurrentDate(prevMonth)
+    setMonth(currentDate.getMonth() - 2)
   }
 
   const daysInMonth = getDaysInMonth(currentDate)
