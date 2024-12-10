@@ -1,15 +1,28 @@
 'use client'
 
 import { Button } from '@nextui-org/button'
+import { Badge } from '@nextui-org/react'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { HiChevronDoubleLeft } from 'react-icons/hi'
+
+interface Schedule {
+  title: string
+  description: string
+  date: Date
+  startTime: string
+  endTime: string
+  status: 'confirmed' | 'pending' | 'cancelled'
+  location: string
+  createdBy: string
+}
 
 interface props {
   setDate: Dispatch<SetStateAction<Date>>
   date: Date
+  schedules: Schedule[]
 }
 
-const Calendar = ({ setDate, date }: props) => {
+const Calendar = ({ setDate, date, schedules }: props) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const today = new Date()
   const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
@@ -25,15 +38,36 @@ const Calendar = ({ setDate, date }: props) => {
     let day = new Date(firstDay)
 
     for (let i = 0; i < firstDay.getDay(); i++) {
-      days.push(null)
+      days.push({ date: null })
     }
 
     while (day <= lastDay) {
-      days.push(new Date(day))
+      const appoitmentsRegistered = verifySchedule(day)
+      days.push({ date: new Date(day), appoitmentsRegistered })
       day.setDate(day.getDate() + 1)
     }
 
     return days
+  }
+  const verifySchedule = (day: Date) => {
+    let num = 0
+
+    if (schedules) {
+      schedules.forEach((item) => {
+        const date = new Date(item.date)
+
+        const isSameDate =
+          date.getFullYear() === day.getFullYear() &&
+          date.getMonth() === day.getMonth() &&
+          date.getDate() === day.getDate()
+
+        if (isSameDate) {
+          num++
+        }
+      })
+    }
+
+    return num
   }
 
   const handleNextMonth = () => {
@@ -71,14 +105,25 @@ const Calendar = ({ setDate, date }: props) => {
           </div>
         ))}
         {daysInMonth.map((day, index) =>
-          day ? (
+          day.appoitmentsRegistered && day.date ? (
+            <Badge color='primary' content={day.appoitmentsRegistered}>
+              <div
+                onClick={() => setDate(day.date)}
+                key={day.date.toISOString()}
+                className={`border p-2 cursor-pointer text-center rounded w-full ${
+                  day.date.toDateString() === today.toDateString() ? 'bg-blue-500 text-white font-bold' : 'bg-black'
+                } ${date.toDateString() === day.date.toDateString() ? 'border-red-500' : ''}`}>
+                {day.date.getDate()}
+              </div>
+            </Badge>
+          ) : day.date ? (
             <div
-              onClick={() => setDate(day)}
-              key={day.toISOString()}
+              onClick={() => setDate(day.date)}
+              key={day.date.toISOString()}
               className={`border p-2 cursor-pointer text-center rounded ${
-                day.toDateString() === today.toDateString() ? 'bg-blue-500 text-white font-bold' : 'bg-black'
-              } ${date.toDateString() === day.toDateString() ? 'border-red-500' : ''}`}>
-              {day.getDate()}
+                day.date.toDateString() === today.toDateString() ? 'bg-blue-500 text-white font-bold' : 'bg-black'
+              } ${date.toDateString() === day.date.toDateString() ? 'border-red-500' : ''}`}>
+              {day.date.getDate()}
             </div>
           ) : (
             <div key={index} className='border p-2 bg-transparent'></div>
