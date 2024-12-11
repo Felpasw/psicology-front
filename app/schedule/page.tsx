@@ -15,6 +15,8 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Select,
+  SelectItem,
   Textarea,
   TimeInput,
   Tooltip,
@@ -57,6 +59,19 @@ interface errors {
   createdBy: string
 }
 
+interface patients {
+  _id: string
+  CPF: string
+  age: number
+  createdAt?: string
+  email: string
+  gender: string
+  name: string
+  phoneNumber: string
+  updatedAt?: string
+  address?: string
+}
+
 interface SchedulesBy {
   day: Schedule[]
   month: Schedule[]
@@ -69,6 +84,7 @@ export default function Schedule() {
   const [errors, setErrors] = useState<errors>({} as errors)
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1)
   const [schedules, setSchedules] = useState<SchedulesBy>({} as SchedulesBy)
+  const [patients, setPatients] = useState<patients>()
 
   const requestMethods = {
     getSchedule: async () => {
@@ -77,14 +93,23 @@ export default function Schedule() {
       setSchedules({ month: monthS, day })
     },
     putSchedule: async () => {},
+
     deleteSchedule: async () => {},
+
     postSchedule: async () => {
       const response = await POST(`/schedules`, { ...currentSchedule, date })
       setErrors(response.data ? response.data : ({} as errors))
       await requestMethods.getSchedule()
     },
+
     getPactients: async () => {},
   }
+
+  const statusOptions = [
+    { key: 'pending', label: 'Pendente' },
+    { key: 'confirmed', label: 'Confirmado' },
+    { key: 'cancelled', label: 'Cancelado' },
+  ]
 
   useEffect(() => {
     requestMethods.getSchedule()
@@ -195,6 +220,11 @@ export default function Schedule() {
                       value={currentSchedule.title}
                       onChange={(e) => setCurrentSchedule({ ...currentSchedule, title: e.target.value })}
                     />
+                    <Select label='Status' isRequired>
+                      {statusOptions.map((item) => (
+                        <SelectItem key={item.key}>{item.label}</SelectItem>
+                      ))}
+                    </Select>
                     <TimeInput
                       isRequired
                       label='Horário de início'
