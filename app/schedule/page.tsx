@@ -97,7 +97,10 @@ export default function Schedule() {
     deleteSchedule: async () => {},
 
     postSchedule: async () => {
-      const response = await POST(`/schedules`, { ...currentSchedule, date })
+      const startTime = `${currentSchedule.startTime.hour}:${currentSchedule.startTime.minute}`
+      const endTime = `${currentSchedule.endTime.hour}:${currentSchedule.endTime.minute}`
+
+      const response = await POST(`/schedules`, { ...currentSchedule, startTime, endTime })
       setErrors(response.data ? response.data : ({} as errors))
       await requestMethods.getSchedule()
     },
@@ -175,6 +178,9 @@ export default function Schedule() {
                   </Card>
                 )
               })}
+            {schedules.day && schedules.day.length == 0 && (
+              <h1 className='opacity-75 text-slate-400'>Nenhum agendamento cadastrado</h1>
+            )}
           </div>
         </div>
 
@@ -182,7 +188,7 @@ export default function Schedule() {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className='flex flex-col gap-1'>Remover paciente</ModalHeader>
+                <ModalHeader className='flex flex-col gap-1'>Remover apontamento</ModalHeader>
                 <ModalBody>
                   <p>
                     Gostaria mesmo remover o apontamento <b>{currentSchedule.title}</b>?
