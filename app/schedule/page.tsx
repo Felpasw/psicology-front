@@ -9,11 +9,14 @@ import {
   CardFooter,
   CardHeader,
   Divider,
+  Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Textarea,
+  TimeInput,
   Tooltip,
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
@@ -25,12 +28,31 @@ interface modal {
   editOrNew: boolean
 }
 interface Schedule {
+  _id?: string
   title: string
   description: string
   date: Date
+  startTime: string | time
+  endTime: string | time
+  status: 'confirmed' | 'pending' | 'cancelled'
+  location: string
+  createdBy: string
+}
+
+interface time {
+  hour: number
+  millisecond: number
+  minute: number
+  second: number
+}
+
+interface errors {
+  title: string
+  description: string
+  date: string
   startTime: string
   endTime: string
-  status: 'confirmed' | 'pending' | 'cancelled'
+  status: string
   location: string
   createdBy: string
 }
@@ -44,19 +66,23 @@ export default function Schedule() {
   const [date, setDate] = useState<Date>(new Date())
   const [modal, setModal] = useState<modal>({ remove: false, editOrNew: false })
   const [currentSchedule, setCurrentSchedule] = useState<Schedule>({} as Schedule)
-  const [errors, setErrors] = useState<string>()
-  const [month, setMonth] = useState<number>()
+  const [errors, setErrors] = useState<errors>({} as errors)
+  const [month, setMonth] = useState<number>(new Date().getMonth() + 1)
   const [schedules, setSchedules] = useState<SchedulesBy>({} as SchedulesBy)
 
   const requestMethods = {
     getSchedule: async () => {
       const monthS = await GET('/schedules', { params: { date: { month } } })
-      const day = await GET('/schedules', { params: { date: { day: date.getDay(), month } } })
+      const day = await GET('/schedules', { params: { date: { day: date.getDate(), month } } })
       setSchedules({ month: monthS, day })
     },
     putSchedule: async () => {},
     deleteSchedule: async () => {},
-    postSchedule: async () => {},
+    postSchedule: async () => {
+      const response = await POST(`/schedules`, { ...currentSchedule, date })
+      setErrors(response.data ? response.data : ({} as errors))
+      await requestMethods.getSchedule()
+    },
     getPactients: async () => {},
   }
 
@@ -71,10 +97,16 @@ export default function Schedule() {
         <div className='text-center w-[30%]'>
           <div className='flex justify-between p-2'>
             <h1 className='text-2xl'>
-              Agenda para o dia
+              Agenda para o dia{' '}
               {`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
             </h1>
-            <Button onClick={() => setModal({ ...modal, editOrNew: true })}>Adicionar</Button>
+            <Button
+              onClick={() => {
+                setCurrentSchedule({} as Schedule)
+                setModal({ ...modal, editOrNew: true })
+              }}>
+              Adicionar
+            </Button>
           </div>
           <Divider className='mb-5' />
 
@@ -128,7 +160,7 @@ export default function Schedule() {
                 <ModalHeader className='flex flex-col gap-1'>Remover paciente</ModalHeader>
                 <ModalBody>
                   <p>
-                    Gostaria mesmo remover o apontamento do dia <b>{currentSchedule}</b>?
+                    Gostaria mesmo remover o apontamento <b>{currentSchedule.title}</b>?
                   </p>
                 </ModalBody>
                 <ModalFooter>
@@ -137,6 +169,69 @@ export default function Schedule() {
                   </Button>
                   <Button color='primary' onPress={() => requestMethods.deleteSchedule()}>
                     Remover
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+
+        <Modal isOpen={modal.editOrNew} onClose={() => setModal({ ...modal, editOrNew: false })}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className='flex flex-col gap-1'>
+                  {currentSchedule._id
+                    ? `Editar agendamento ${currentSchedule.title}`
+                    : `Criar agendamento dia ${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
+                </ModalHeader>
+                <ModalBody>
+                  <>
+                    <Input
+                      label='Título'
+                      isRequired
+                      errorMessage={errors.title}
+                      isInvalid={!!errors.title}
+                      value={currentSchedule.title}
+                      onChange={(e) => setCurrentSchedule({ ...currentSchedule, title: e.target.value })}
+                    />
+                    <TimeInput
+                      isRequired
+                      label='Horário de início'
+                      errorMessage={errors.startTime}
+                      isInvalid={!!errors.startTime}
+                      hourCycle={24}
+                      onChange={(e) => {
+                        const startTime = e
+                        setCurrentSchedule((prev) => ({ ...prev, startTime }))
+                      }}
+                    />
+                    <TimeInput
+                      isRequired
+                      hourCycle={24}
+                      errorMessage={errors.endTime}
+                      isInvalid={!!errors.endTime}
+                      label='Horário de fim'
+                      onChange={(e) => {
+                        const endTime = e
+                        setCurrentSchedule((prev) => ({ ...prev, endTime }))
+                      }}
+                    />
+                    <Textarea
+                      errorMessage={errors.description}
+                      isInvalid={!!errors.description}
+                      value={currentSchedule.description}
+                      onChange={(e) => setCurrentSchedule({ ...currentSchedule, description: e.target.value })}
+                      label='Descrição'
+                    />
+                  </>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color='danger' variant='light' onPress={onClose}>
+                    Cancelar
+                  </Button>
+                  <Button color='primary' onPress={() => requestMethods.postSchedule()}>
+                    Enviar
                   </Button>
                 </ModalFooter>
               </>

@@ -8,7 +8,7 @@ import { HiChevronDoubleLeft } from 'react-icons/hi'
 interface Schedule {
   title: string
   description: string
-  date: Date
+  date: string
   startTime: string
   endTime: string
   status: 'confirmed' | 'pending' | 'cancelled'
@@ -55,7 +55,7 @@ const Calendar = ({ setDate, date, schedules, setMonth }: props) => {
 
     if (schedules) {
       schedules.forEach((item) => {
-        const date = new Date(item.date)
+        const date = new Date(`${item.date.split('T')[0]}T00:00:00`)
 
         const isSameDate =
           date.getFullYear() === day.getFullYear() &&
@@ -74,13 +74,16 @@ const Calendar = ({ setDate, date, schedules, setMonth }: props) => {
   const handleNextMonth = () => {
     const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     setCurrentDate(nextMonth)
-    setMonth(currentDate.getMonth() + 2)
+    console.log(nextMonth)
+
+    setMonth(nextMonth.getMonth() + 1)
   }
 
   const handlePreviousMonth = () => {
     const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     setCurrentDate(prevMonth)
-    setMonth(currentDate.getMonth() - 2)
+
+    setMonth(prevMonth.getMonth() + 1)
   }
 
   const daysInMonth = getDaysInMonth(currentDate)
