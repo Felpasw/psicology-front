@@ -4,6 +4,8 @@ import Calendar from '@/components/Calendar'
 import { GET, DELETE, POST, PUT } from '@/crud'
 import { Button } from '@nextui-org/button'
 import {
+  Autocomplete,
+  AutocompleteItem,
   Card,
   CardBody,
   CardFooter,
@@ -22,8 +24,10 @@ import {
   Tooltip,
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
-import { FaEdit } from 'react-icons/fa'
+import { FaEdit, FaCheck, FaUserCheck } from 'react-icons/fa'
 import { MdDelete } from 'react-icons/md'
+import { TbUserCancel } from 'react-icons/tb'
+import { RiPassPendingFill } from 'react-icons/ri'
 
 interface modal {
   remove: boolean
@@ -36,16 +40,16 @@ interface Schedule {
   date: Date
   startTime: string | time
   endTime: string | time
-  status: 'confirmed' | 'pending' | 'cancelled'
+  status: 'confirmed' | 'pending' | 'cancelled' | 'completed'
   location: string
-  createdBy: string
+  patient: string
 }
 
 interface time {
   hour: number
-  millisecond: number
   minute: number
-  second: number
+  millisecond?: number
+  second?: number
 }
 
 interface errors {
@@ -57,6 +61,7 @@ interface errors {
   status: string
   location: string
   createdBy: string
+  patient: string
 }
 
 interface patients {
@@ -77,6 +82,11 @@ interface SchedulesBy {
   month: Schedule[]
 }
 
+interface selectItem {
+  label: string
+  key: string
+}
+
 export default function Schedule() {
   const [date, setDate] = useState<Date>(new Date())
   const [modal, setModal] = useState<modal>({ remove: false, editOrNew: false })
@@ -84,7 +94,7 @@ export default function Schedule() {
   const [errors, setErrors] = useState<errors>({} as errors)
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1)
   const [schedules, setSchedules] = useState<SchedulesBy>({} as SchedulesBy)
-  const [patients, setPatients] = useState<patients>()
+  const [patients, setPatients] = useState<selectItem[]>([] as selectItem[])
 
   const requestMethods = {
     getSchedule: async () => {
@@ -92,31 +102,64 @@ export default function Schedule() {
       const day = await GET('/schedules', { params: { date: { day: date.getDate(), month } } })
       setSchedules({ month: monthS, day })
     },
-    putSchedule: async () => {},
+    putSchedule: async () => {
+      const startTime = `${currentSchedule.startTime.hour.toString().padStart(2, '0')}:${currentSchedule.startTime.minute.toString().padStart(2, '0')}`
+      const endTime = `${currentSchedule.endTime.hour.toString().padStart(2, '0')}:${currentSchedule.endTime.minute.toString().padStart(2, '0')}`
 
-    deleteSchedule: async () => {},
+      const response = await PUT(`/schedules/${currentSchedule._id}`, { ...currentSchedule, startTime, endTime })
 
-    postSchedule: async () => {
-      const startTime = `${currentSchedule.startTime.hour}:${currentSchedule.startTime.minute}`
-      const endTime = `${currentSchedule.endTime.hour}:${currentSchedule.endTime.minute}`
-
-      const response = await POST(`/schedules`, { ...currentSchedule, startTime, endTime })
       setErrors(response.data ? response.data : ({} as errors))
       await requestMethods.getSchedule()
     },
 
-    getPactients: async () => {},
+    deleteSchedule: async () => {},
+
+    postSchedule: async () => {
+      const startTime = `${currentSchedule.startTime.hour.toString().padStart(2, '0')}:${currentSchedule.startTime.minute.toString().padStart(2, '0')}`
+      const endTime = `${currentSchedule.endTime.hour.toString().padStart(2, '0')}:${currentSchedule.endTime.minute.toString().padStart(2, '0')}`
+
+      const response = await POST(`/schedules`, { ...currentSchedule, startTime, endTime, date })
+      setErrors(response.data ? response.data : ({} as errors))
+      await requestMethods.getSchedule()
+    },
+
+    getPatients: async () => {
+      const response = await GET('/patients')
+
+      setPatients(
+        response.map((item: patients) => ({
+          label: item.name,
+          key: item._id,
+        }))
+      )
+    },
   }
 
   const statusOptions = [
     { key: 'pending', label: 'Pendente' },
     { key: 'confirmed', label: 'Confirmado' },
     { key: 'cancelled', label: 'Cancelado' },
+    { key: 'completed', label: 'Concluída' },
   ]
+
+  const statusIcons = {
+    cancelled: <TbUserCancel />,
+    confirmed: <FaCheck />,
+    pending: <RiPassPendingFill />,
+    concluded: <FaUserCheck />,
+  }
+
+  const getSelectedPatient = () => {
+    return patients.find((patient) => patient.key === currentSchedule.patient)?.label
+  }
 
   useEffect(() => {
     requestMethods.getSchedule()
   }, [date, month])
+
+  useEffect(() => {
+    requestMethods.getPatients()
+  }, [])
 
   return (
     <AuthenticatedLayout>
@@ -153,27 +196,45 @@ export default function Schedule() {
                     </CardHeader>
                     <Divider />
                     <CardFooter>
-                      <Tooltip content='Editar'>
-                        <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
-                          <FaEdit
-                            onClick={() => {
-                              setCurrentSchedule(item)
-                              setModal({ ...modal, editOrNew: true })
-                            }}
-                          />
-                        </span>
-                      </Tooltip>
+                      <div className='flex justify-between w-full'>
+                        <Tooltip content='Editar'>
+                          <div>{statusIcons[item.status]}</div>
+                        </Tooltip>
 
-                      <Tooltip color='danger' content='Remover'>
-                        <span className='text-lg text-danger cursor-pointer active:opacity-50'>
-                          <MdDelete
-                            onClick={() => {
-                              setModal({ ...modal, remove: true })
-                              setCurrentSchedule(item)
-                            }}
-                          />
-                        </span>
-                      </Tooltip>
+                        <div className='flex'>
+                          <Tooltip content='Editar'>
+                            <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+                              <FaEdit
+                                onClick={() => {
+                                  const startTime: time = {
+                                    minute: Number(item.startTime.toString().split(':')[1]),
+                                    hour: Number(item.startTime.toString().split(':')[0]),
+                                  }
+
+                                  const endTime: time = {
+                                    minute: Number(item.endTime.toString().split(':')[1]),
+                                    hour: Number(item.endTime.toString().split(':')[0]),
+                                  }
+
+                                  setCurrentSchedule({ ...item, startTime, endTime })
+                                  setModal({ ...modal, editOrNew: true })
+                                }}
+                              />
+                            </span>
+                          </Tooltip>
+
+                          <Tooltip color='danger' content='Remover'>
+                            <span className='text-lg text-danger cursor-pointer active:opacity-50'>
+                              <MdDelete
+                                onClick={() => {
+                                  setModal({ ...modal, remove: true })
+                                  setCurrentSchedule(item)
+                                }}
+                              />
+                            </span>
+                          </Tooltip>
+                        </div>
+                      </div>
                     </CardFooter>
                   </Card>
                 )
@@ -213,7 +274,7 @@ export default function Schedule() {
               <>
                 <ModalHeader className='flex flex-col gap-1'>
                   {currentSchedule._id
-                    ? `Editar agendamento ${currentSchedule.title}`
+                    ? `Editar agendamento `
                     : `Criar agendamento dia ${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
                 </ModalHeader>
                 <ModalBody>
@@ -226,7 +287,12 @@ export default function Schedule() {
                       value={currentSchedule.title}
                       onChange={(e) => setCurrentSchedule({ ...currentSchedule, title: e.target.value })}
                     />
-                    <Select label='Status' isRequired>
+                    <Select
+                      label='Status'
+                      value={currentSchedule.status}
+                      onChange={(value: 'confirmed' | 'pending' | 'cancelled' | 'completed') =>
+                        setCurrentSchedule({ ...currentSchedule, status: value })
+                      }>
                       {statusOptions.map((item) => (
                         <SelectItem key={item.key}>{item.label}</SelectItem>
                       ))}
@@ -237,6 +303,7 @@ export default function Schedule() {
                       errorMessage={errors.startTime}
                       isInvalid={!!errors.startTime}
                       hourCycle={24}
+                      value={currentSchedule.startTime}
                       onChange={(e) => {
                         const startTime = e
                         setCurrentSchedule((prev) => ({ ...prev, startTime }))
@@ -245,6 +312,7 @@ export default function Schedule() {
                     <TimeInput
                       isRequired
                       hourCycle={24}
+                      value={currentSchedule.endTime}
                       errorMessage={errors.endTime}
                       isInvalid={!!errors.endTime}
                       label='Horário de fim'
@@ -253,6 +321,23 @@ export default function Schedule() {
                         setCurrentSchedule((prev) => ({ ...prev, endTime }))
                       }}
                     />
+                    <Autocomplete
+                      inputValue={getSelectedPatient()}
+                      defaultItems={patients}
+                      isInvalid={!!errors.patient}
+                      errorMessage={errors.patient}
+                      label='Paciente'
+                      placeholder='Procure um paciente'
+                      onInputChange={(value: string) => {
+                        const patient = patients.find((item) => item.label === value)
+                        if (patient) {
+                          setCurrentSchedule({ ...currentSchedule, patient: patient.key })
+                        }
+                      }}
+                      isRequired>
+                      {(patient) => <AutocompleteItem key={patient.key}>{patient.label}</AutocompleteItem>}
+                    </Autocomplete>
+
                     <Textarea
                       errorMessage={errors.description}
                       isInvalid={!!errors.description}
@@ -266,7 +351,11 @@ export default function Schedule() {
                   <Button color='danger' variant='light' onPress={onClose}>
                     Cancelar
                   </Button>
-                  <Button color='primary' onPress={() => requestMethods.postSchedule()}>
+                  <Button
+                    color='primary'
+                    onPress={() =>
+                      currentSchedule._id ? requestMethods.putSchedule() : requestMethods.postSchedule()
+                    }>
                     Enviar
                   </Button>
                 </ModalFooter>
