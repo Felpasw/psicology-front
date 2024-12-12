@@ -105,19 +105,20 @@ export default function Schedule() {
     putSchedule: async () => {
       const startTime = `${currentSchedule.startTime.hour.toString().padStart(2, '0')}:${currentSchedule.startTime.minute.toString().padStart(2, '0')}`
       const endTime = `${currentSchedule.endTime.hour.toString().padStart(2, '0')}:${currentSchedule.endTime.minute.toString().padStart(2, '0')}`
-
       const response = await PUT(`/schedules/${currentSchedule._id}`, { ...currentSchedule, startTime, endTime })
-
       setErrors(response.data ? response.data : ({} as errors))
       await requestMethods.getSchedule()
     },
 
-    deleteSchedule: async () => {},
+    deleteSchedule: async () => {
+      await DELETE(`/schedules/${currentSchedule._id}`)
+      await requestMethods.getSchedule()
+      setModal({ ...modal, remove: false })
+    },
 
     postSchedule: async () => {
       const startTime = `${currentSchedule.startTime.hour.toString().padStart(2, '0')}:${currentSchedule.startTime.minute.toString().padStart(2, '0')}`
       const endTime = `${currentSchedule.endTime.hour.toString().padStart(2, '0')}:${currentSchedule.endTime.minute.toString().padStart(2, '0')}`
-
       const response = await POST(`/schedules`, { ...currentSchedule, startTime, endTime, date })
       setErrors(response.data ? response.data : ({} as errors))
       await requestMethods.getSchedule()
@@ -182,66 +183,68 @@ export default function Schedule() {
           <Divider className='mb-5' />
 
           <div className='flex flex-col justify-center items-center gap-6'>
-            {schedules.day &&
-              schedules.day.map((item) => {
-                return (
-                  <Card className='w-full'>
-                    <CardHeader className='flex gap-3'>
-                      <div className='flex flex-col'>
-                        <p className='text-md text-start'>{item.title}</p>
-                        <p className='text-small text-default-500'>
-                          {item.startTime} - {item.endTime}
-                        </p>
-                      </div>
-                    </CardHeader>
-                    <Divider />
-                    <CardFooter>
-                      <div className='flex justify-between w-full'>
-                        <Tooltip content='Editar'>
-                          <div>{statusIcons[item.status]}</div>
-                        </Tooltip>
-
-                        <div className='flex'>
-                          <Tooltip content='Editar'>
-                            <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
-                              <FaEdit
-                                onClick={() => {
-                                  const startTime: time = {
-                                    minute: Number(item.startTime.toString().split(':')[1]),
-                                    hour: Number(item.startTime.toString().split(':')[0]),
-                                  }
-
-                                  const endTime: time = {
-                                    minute: Number(item.endTime.toString().split(':')[1]),
-                                    hour: Number(item.endTime.toString().split(':')[0]),
-                                  }
-
-                                  setCurrentSchedule({ ...item, startTime, endTime })
-                                  setModal({ ...modal, editOrNew: true })
-                                }}
-                              />
-                            </span>
-                          </Tooltip>
-
-                          <Tooltip color='danger' content='Remover'>
-                            <span className='text-lg text-danger cursor-pointer active:opacity-50'>
-                              <MdDelete
-                                onClick={() => {
-                                  setModal({ ...modal, remove: true })
-                                  setCurrentSchedule(item)
-                                }}
-                              />
-                            </span>
-                          </Tooltip>
+            <div className='w-full  gap-5 overflow-y-scroll max-h-[70vh]'>
+              {schedules.day &&
+                schedules.day.map((item) => {
+                  return (
+                    <Card className='my-5'>
+                      <CardHeader className='flex gap-3'>
+                        <div className='flex flex-col'>
+                          <p className='text-md text-start'>{item.title}</p>
+                          <p className='text-small text-default-500'>
+                            {item.startTime} - {item.endTime}
+                          </p>
                         </div>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                )
-              })}
-            {schedules.day && schedules.day.length == 0 && (
-              <h1 className='opacity-75 text-slate-400'>Nenhum agendamento cadastrado</h1>
-            )}
+                      </CardHeader>
+                      <Divider />
+                      <CardFooter>
+                        <div className='flex justify-between w-full'>
+                          <Tooltip content='Editar'>
+                            <div>{statusIcons[item.status]}</div>
+                          </Tooltip>
+
+                          <div className='flex'>
+                            <Tooltip content='Editar'>
+                              <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+                                <FaEdit
+                                  onClick={() => {
+                                    const startTime: time = {
+                                      minute: Number(item.startTime.toString().split(':')[1]),
+                                      hour: Number(item.startTime.toString().split(':')[0]),
+                                    }
+
+                                    const endTime: time = {
+                                      minute: Number(item.endTime.toString().split(':')[1]),
+                                      hour: Number(item.endTime.toString().split(':')[0]),
+                                    }
+
+                                    setCurrentSchedule({ ...item, startTime, endTime })
+                                    setModal({ ...modal, editOrNew: true })
+                                  }}
+                                />
+                              </span>
+                            </Tooltip>
+
+                            <Tooltip color='danger' content='Remover'>
+                              <span className='text-lg text-danger cursor-pointer active:opacity-50'>
+                                <MdDelete
+                                  onClick={() => {
+                                    setModal({ ...modal, remove: true })
+                                    setCurrentSchedule(item)
+                                  }}
+                                />
+                              </span>
+                            </Tooltip>
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  )
+                })}
+              {schedules.day && schedules.day.length == 0 && (
+                <h1 className='opacity-75 text-slate-400'>Nenhum agendamento cadastrado</h1>
+              )}
+            </div>
           </div>
         </div>
 
@@ -287,12 +290,7 @@ export default function Schedule() {
                       value={currentSchedule.title}
                       onChange={(e) => setCurrentSchedule({ ...currentSchedule, title: e.target.value })}
                     />
-                    <Select
-                      label='Status'
-                      value={currentSchedule.status}
-                      onChange={(value: 'confirmed' | 'pending' | 'cancelled' | 'completed') =>
-                        setCurrentSchedule({ ...currentSchedule, status: value })
-                      }>
+                    <Select label='Status'>
                       {statusOptions.map((item) => (
                         <SelectItem key={item.key}>{item.label}</SelectItem>
                       ))}
