@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -58,18 +58,26 @@ const labels = [
   'Dezembro',
 ]
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: '2024',
-      data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    },
-  ],
-}
-
 export function Graph() {
+  const [fetchedData, setFetchedData] = useState<number[]>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {}
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: '2024',
+        data: fetchedData,
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      },
+    ],
+  }
+
   return <Line options={options} data={data} className='max-w-[100%]' />
 }

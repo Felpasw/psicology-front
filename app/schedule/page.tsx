@@ -144,10 +144,26 @@ export default function Schedule() {
   ]
 
   const statusIcons = {
-    cancelled: <TbUserCancel />,
-    confirmed: <FaCheck />,
-    pending: <RiPassPendingFill />,
-    concluded: <FaUserCheck />,
+    cancelled: (
+      <div className='text-red-400 flex items-center justify-center gap-2 text-sm'>
+        <TbUserCancel /> Cancelado
+      </div>
+    ),
+    concluded: (
+      <div className='text-green-400 flex items-center justify-center gap-2 text-sm'>
+        <FaCheck /> Concluída
+      </div>
+    ),
+    pending: (
+      <div className='text-yellow-400 flex items-center justify-center gap-2 text-sm'>
+        <RiPassPendingFill /> Pendente
+      </div>
+    ),
+    confirmed: (
+      <div className='text-green-400 flex items-center justify-center gap-2 text-sm'>
+        <FaUserCheck /> Confirmada pelo paciente
+      </div>
+    ),
   }
 
   const getSelectedPatient = () => {
@@ -166,10 +182,9 @@ export default function Schedule() {
     <AuthenticatedLayout>
       <>
         <Calendar date={date} setDate={setDate} schedules={schedules.month} setMonth={setMonth} />
-        <div className='text-center w-[30%]'>
+        <div className=' flex flex-col justify-center text-center w-[30%]'>
           <div className='flex justify-between p-2'>
             <h1 className='text-2xl'>
-              Agenda para o dia{' '}
               {`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
             </h1>
             <Button
@@ -183,7 +198,7 @@ export default function Schedule() {
           <Divider className='mb-5' />
 
           <div className='flex flex-col justify-center items-center gap-6'>
-            <div className='w-full  gap-5 overflow-y-scroll max-h-[70vh]'>
+            <div className='w-full  gap-5 overflow-y-scroll h-[70vh]'>
               {schedules.day &&
                 schedules.day.map((item) => {
                   return (
@@ -199,9 +214,7 @@ export default function Schedule() {
                       <Divider />
                       <CardFooter>
                         <div className='flex justify-between w-full'>
-                          <Tooltip content='Editar'>
-                            <div>{statusIcons[item.status]}</div>
-                          </Tooltip>
+                          {statusIcons[item.status]}
 
                           <div className='flex'>
                             <Tooltip content='Editar'>

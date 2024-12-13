@@ -93,7 +93,7 @@ const Calendar = ({ setDate, date, schedules, setMonth }: props) => {
   }
 
   return (
-    <div className='w-1/2 min-h-screen p-12'>
+    <div className='w-1/2 flex flex-col justify-center p-12'>
       <div className='flex justify-between items-center mb-4'>
         <Button onClick={handlePreviousMonth}>
           <HiChevronDoubleLeft />
