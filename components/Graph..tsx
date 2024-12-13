@@ -59,6 +59,14 @@ const labels = [
   'Dezembro',
 ]
 
+interface responseGraph {
+  faturamento: number
+  _id: {
+    month: number
+    year: number
+  }
+}
+
 export function Graph() {
   const [fetchedData, setFetchedData] = useState<number[]>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
@@ -67,8 +75,13 @@ export function Graph() {
   }, [])
 
   const fetchData = async () => {
-    const response = await GET('/report/getMonthlyRevenue')
-    console.log(response)
+    const response: responseGraph[] = await GET('/report/getMonthlyRevenue')
+    let data = fetchedData
+    for (let index = 0; index < response.length; index++) {
+      data[response[index]._id.month - 1] = response[index].faturamento
+    }
+
+    setFetchedData(data)
   }
 
   const data = {
