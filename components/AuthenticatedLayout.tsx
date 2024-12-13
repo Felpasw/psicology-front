@@ -13,17 +13,6 @@ interface AuthenticatedLayoutProps {
 export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <>
-      <div className='flex w-full items-center justify-between'>
-        <img src='./logo.png' alt='' className='max-w-64' />
-        <div className='flex'>
-          <Tooltip content='Sair'>
-            <IoLogOutSharp />
-          </Tooltip>
-          <Tooltip content='Perfil'>
-            <IoLogOutSharp />
-          </Tooltip>
-        </div>
-      </div>
       <main className='flex'>
         <SideBar />
         {children}
