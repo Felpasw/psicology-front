@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
+import { GET } from '@/crud'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -65,7 +66,10 @@ export function Graph() {
     fetchData()
   }, [])
 
-  const fetchData = async () => {}
+  const fetchData = async () => {
+    const response = await GET('/report/getMonthlyRevenue')
+    console.log(response)
+  }
 
   const data = {
     labels,
