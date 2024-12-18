@@ -90,8 +90,9 @@ export function Graph() {
       {
         label: '2024',
         data: fetchedData,
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+
+        borderColor: '#0061EE',
+        backgroundColor: '#0061EE',
       },
     ],
   }

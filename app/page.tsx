@@ -23,27 +23,32 @@ export default function Home() {
   }
 
   return (
-    <main className='flex flex-col items-center justify-center min-h-[100vh] gap-12'>
-      <img src='./logo.png' alt='' />
-      <Input
-        type='email'
-        label='Email'
-        isInvalid={!!apiReponse.email}
-        errorMessage={apiReponse.email}
-        value={login.email}
-        onChange={(e) => setLogin({ ...login, email: e.target.value })}
-      />
-      <Input
-        type='password'
-        label='Senha'
-        isInvalid={!!apiReponse.password}
-        errorMessage={apiReponse.password}
-        value={login.password}
-        onChange={(e) => setLogin({ ...login, password: e.target.value })}
-      />
-      <Button color='primary' variant='light' className='w-full' onClick={submit}>
-        Enviar
-      </Button>
+    <main className='flex items-center justify-center min-h-[100vh] gap-12'>
+      <div className='w-2/3'></div>
+      <div className='flex flex-col items-center justify-center w-1/5 h-screen'>
+        <img src='./logo.png' alt='' className='mb-5' />
+        <Input
+          type='email'
+          label='Email'
+          isInvalid={!!apiReponse.email}
+          errorMessage={apiReponse.email}
+          value={login.email}
+          className='mb-5'
+          onChange={(e) => setLogin({ ...login, email: e.target.value })}
+        />
+        <Input
+          type='password'
+          label='Senha'
+          className='mb-5'
+          isInvalid={!!apiReponse.password}
+          errorMessage={apiReponse.password}
+          value={login.password}
+          onChange={(e) => setLogin({ ...login, password: e.target.value })}
+        />
+        <Button color='primary' variant='light' className='w-full' onClick={submit}>
+          Enviar
+        </Button>
+      </div>
     </main>
   )
 }
