@@ -202,6 +202,7 @@ export default function Pacients() {
               <Select
                 isInvalid={!!errors.gender}
                 errorMessage={errors.gender}
+                defaultSelectedKeys={[currentPatient.gender]}
                 onChange={(e) => setCurrentPatient({ ...currentPatient, gender: e.target.value })}
                 label="Gênero" isRequired >
                 {genderOptions.map((gender) => (
