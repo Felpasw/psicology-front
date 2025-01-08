@@ -24,10 +24,11 @@ import {
   Tooltip,
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
-import { FaEdit, FaCheck, FaUserCheck } from 'react-icons/fa'
-import { MdDelete } from 'react-icons/md'
+import { FaEdit, FaCheck, FaUserCheck, FaRegCalendarPlus } from 'react-icons/fa'
+import { MdDelete, MdDateRange } from 'react-icons/md'
 import { TbUserCancel } from 'react-icons/tb'
 import { RiPassPendingFill } from 'react-icons/ri'
+
 
 interface modal {
   remove: boolean
@@ -149,7 +150,7 @@ export default function Schedule() {
         <TbUserCancel /> Cancelado
       </div>
     ),
-    concluded: (
+    completed: (
       <div className='text-green-400 flex items-center justify-center gap-2 text-sm'>
         <FaCheck /> Concluída
       </div>
@@ -184,10 +185,11 @@ export default function Schedule() {
         <Calendar date={date} setDate={setDate} schedules={schedules.month} setMonth={setMonth} />
         <div className=' flex flex-col justify-center text-center w-[30%]'>
           <div className='flex justify-between p-2'>
-            <h1 className='text-2xl'>
-              {`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
+            <h1 className='text-2xl text-blue-400 flex gap-2 items-center'>
+              <MdDateRange /> {`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
             </h1>
             <Button
+              endContent={< FaRegCalendarPlus />}
               onClick={() => {
                 setCurrentSchedule({} as Schedule)
                 setModal({ ...modal, editOrNew: true })
@@ -272,7 +274,7 @@ export default function Schedule() {
                   </p>
                 </ModalBody>
                 <ModalFooter>
-                  <Button color='danger' variant='light' onPress={onClose}>
+                  <Button color='danger' variant='light' onPress={onClose} >
                     Cancelar
                   </Button>
                   <Button color='primary' onPress={() => requestMethods.deleteSchedule()}>
@@ -284,11 +286,14 @@ export default function Schedule() {
           </ModalContent>
         </Modal>
 
-        <Modal isOpen={modal.editOrNew} onClose={() => setModal({ ...modal, editOrNew: false })}>
+
+        <Modal isOpen={modal.editOrNew} onClose={() => setModal({ ...modal, editOrNew: false })}
+          isDismissable={false}
+        >
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className='flex flex-col gap-1'>
+                <ModalHeader className='p-6'>
                   {currentSchedule._id
                     ? `Editar agendamento `
                     : `Criar agendamento dia ${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
@@ -303,7 +308,7 @@ export default function Schedule() {
                       value={currentSchedule.title}
                       onChange={(e) => setCurrentSchedule({ ...currentSchedule, title: e.target.value })}
                     />
-                    <Select label='Status'>
+                    <Select label='Status' defaultSelectedKeys={[currentSchedule.status]} value={currentSchedule.status} onChange={(e) => { setCurrentSchedule({ ...currentSchedule, status: e.target.value }) }}>
                       {statusOptions.map((item) => (
                         <SelectItem key={item.key}>{item.label}</SelectItem>
                       ))}
@@ -357,6 +362,7 @@ export default function Schedule() {
                       label='Descrição'
                     />
                   </>
+                  <b className='text-red-400 text-sm'>{errors.date}</b>
                 </ModalBody>
                 <ModalFooter>
                   <Button color='danger' variant='light' onPress={onClose}>
@@ -364,12 +370,14 @@ export default function Schedule() {
                   </Button>
                   <Button
                     color='primary'
+
                     onPress={() =>
                       currentSchedule._id ? requestMethods.putSchedule() : requestMethods.postSchedule()
                     }>
                     Enviar
                   </Button>
                 </ModalFooter>
+
               </>
             )}
           </ModalContent>

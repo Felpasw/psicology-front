@@ -5,6 +5,8 @@ import { Modal, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow,
 import { useEffect, useState } from 'react'
 import { FaEye, FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { FaUserDoctor } from 'react-icons/fa6'
+
 
 
 interface patients {
@@ -56,6 +58,7 @@ export default function Pacients() {
 
 
 
+
   useEffect(() => {
     requestMethods.getPatients()
   }, [])
@@ -96,25 +99,24 @@ export default function Pacients() {
   return (
     <AuthenticatedLayout>
       <div className='p-6 w-full'>
-
-        <div className='w-full flex justify-between'>
-          <h1 className='text-2xl'>Pacientes</h1>
+        <div className='w-full flex justify-between mt-24'>
+          <h1 className='text-5xl flex items-center gap-6 text-blue-400'> <FaUserDoctor /> Pacientes</h1>
           <Button onClick={() => { setCurrentPatient({} as patients), setModal({ ...modal, edit: true }) }}>
             Novo
           </Button>
         </div>
         <hr className='my-6' />
-        <Table >
-          <TableHeader>
+        <Table color="success">
+          <TableHeader className='bg-blue-400'>
             {headers.map((header) => {
               return <TableColumn>{header}</TableColumn>
             })}
           </TableHeader>
-          <TableBody>
+          <TableBody >
             {
               patients && patients.map((item, index) => {
                 return (
-                  <TableRow key={index}>
+                  <TableRow key={index} >
                     {fields.map((field: keyof patients) => {
                       return field != 'action' ? <TableCell> {item[field]} </TableCell> :
                         <TableCell>
@@ -148,7 +150,9 @@ export default function Pacients() {
           </TableBody>
         </Table>
       </div>
-      <Modal isOpen={modal.edit} onClose={() => setModal({ ...modal, edit: false })}>
+      <Modal isOpen={modal.edit} onClose={() => setModal({ ...modal, edit: false })}
+        isDismissable={false}
+      >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">{currentPatient._id ? 'Editar paciente' : 'Novo paciente'}</ModalHeader>
           <ModalBody>

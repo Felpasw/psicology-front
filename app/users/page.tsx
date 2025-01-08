@@ -18,7 +18,7 @@ import {
   Input,
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
-import { FaLock, FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { FaLock, FaEdit, FaEye, FaEyeSlash, FaUsers } from 'react-icons/fa'
 import { MdDelete } from 'react-icons/md'
 
 interface user {
@@ -119,8 +119,9 @@ export default function Users() {
   return (
     <AuthenticatedLayout>
       <div className='p-6 w-full'>
-        <div className='w-full flex justify-between'>
-          <h1 className='text-2xl'>Usuários</h1>
+        <div className='w-full flex justify-between mt-24'>
+          <h1 className='text-5xl flex items-center gap-6 text-blue-400'> <FaUsers /> Usuários</h1>
+
           <Button
             onClick={() => {
               setCurrentUser(zeroState), setModal({ ...modal, edit: true })
