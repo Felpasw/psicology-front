@@ -185,7 +185,7 @@ export default function Schedule() {
         <Calendar date={date} setDate={setDate} schedules={schedules.month} setMonth={setMonth} />
         <div className=' flex flex-col justify-center text-center w-[30%]'>
           <div className='flex justify-between p-2'>
-            <h1 className='text-2xl text-blue-400 flex gap-2 items-center'>
+            <h1 className='text-2xl text-[#0061EE] flex gap-2 items-center'>
               <MdDateRange /> {`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}
             </h1>
             <Button
@@ -289,6 +289,7 @@ export default function Schedule() {
 
         <Modal isOpen={modal.editOrNew} onClose={() => setModal({ ...modal, editOrNew: false })}
           isDismissable={false}
+          backdrop='blur'
         >
           <ModalContent>
             {(onClose) => (

@@ -120,7 +120,7 @@ export default function Users() {
     <AuthenticatedLayout>
       <div className='p-6 w-full'>
         <div className='w-full flex justify-between mt-24'>
-          <h1 className='text-5xl flex items-center gap-6 text-blue-400'> <FaUsers /> Usuários</h1>
+          <h1 className='text-5xl flex items-center gap-6 text-[#0061EE]'> <FaUsers /> Usuários</h1>
 
           <Button
             onClick={() => {
@@ -185,9 +185,9 @@ export default function Users() {
           </TableBody>
         </Table>
       </div>
-      <Modal isOpen={modal.edit} onClose={() => setModal({ ...modal, edit: false })}>
+      <Modal isOpen={modal.edit} onClose={() => setModal({ ...modal, edit: false })} backdrop='blur'>
         <ModalContent>
-          <ModalHeader className='flex flex-col gap-1'>
+          <ModalHeader >
             {currentUser._id ? 'Editar usuário' : 'Novo usuário'}
           </ModalHeader>
           <ModalBody>
@@ -276,7 +276,7 @@ export default function Users() {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={modal.remove} onClose={() => setModal({ ...modal, remove: false })}>
+      <Modal isOpen={modal.remove} onClose={() => setModal({ ...modal, remove: false })} backdrop='blur'>
         <ModalContent>
           {(onClose) => (
             <>
@@ -298,7 +298,7 @@ export default function Users() {
           )}
         </ModalContent>
       </Modal>
-      <Modal isOpen={modal.password} onClose={() => setModal({ ...modal, password: false })}>
+      <Modal isOpen={modal.password} onClose={() => setModal({ ...modal, password: false })} backdrop='blur'>
         <ModalContent>
           <ModalBody>
             <>

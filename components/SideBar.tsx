@@ -22,7 +22,7 @@ const Sidebar = () => {
             <li>
               <a
                 href='/dashboard'
-                className={`flex items-center ${window.location.pathname === '/dashboard' ? 'text-blue-400' : 'text-gray-900 dark:text-white'} p-2  rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-700 group`}>
+                className={`flex items-center ${window.location.pathname === '/dashboard' ? 'text-[#0061EE]' : 'text-gray-900 dark:text-white'} p-2  rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-700 group`}>
                 <VscGraph />
 
                 <span className='ms-3'>Dashboard</span>
@@ -31,7 +31,7 @@ const Sidebar = () => {
             <li>
               <a
                 href='/users'
-                className={`flex items-center p-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-700 group ${window.location.pathname === '/users' ? 'text-blue-400' : 'text-gray-900 dark:text-white'}`}>
+                className={`flex items-center p-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-700 group ${window.location.pathname === '/users' ? 'text-[#0061EE]' : 'text-gray-900 dark:text-white'}`}>
                 <FaUsers />
 
                 <span className='flex-1 ms-3 whitespace-nowrap'>Usuários</span>
@@ -40,7 +40,7 @@ const Sidebar = () => {
             <li>
               <a
                 href='/patients'
-                className={`flex items-center p-2  rounded-lg ${window.location.pathname === '/patients' ? 'text-blue-400' : 'text-gray-900 dark:text-white'} hover:bg-gray-100 dark:hover:bg-gray-700 group`}>
+                className={`flex items-center p-2  rounded-lg ${window.location.pathname === '/patients' ? 'text-[#0061EE]' : 'text-gray-900 dark:text-white'} hover:bg-gray-100 dark:hover:bg-gray-700 group`}>
                 <FaUserDoctor />
                 <span className='flex-1 ms-3 whitespace-nowrap'>Pacientes</span>
               </a>
@@ -48,7 +48,7 @@ const Sidebar = () => {
             <li>
               <a
                 href='/schedule'
-                className={`flex items-center p-2  ${window.location.pathname === '/schedule' ? 'text-blue-400' : 'text-gray-900 dark:text-white'} rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-700 group`}>
+                className={`flex items-center p-2  ${window.location.pathname === '/schedule' ? 'text-[#0061EE]' : 'text-gray-900 dark:text-white'} rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-700 group`}>
                 <FaCalendar />
                 <span className='flex-1 ms-3 whitespace-nowrap'>Agenda</span>
               </a>
