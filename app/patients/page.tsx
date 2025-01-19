@@ -58,7 +58,7 @@ export default function Pacients() {
   } as ModalStates)
   const [currentPatient, setCurrentPatient] = useState({} as patients)
   const [errors, setErrors] = useState({} as errors)
-
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
 
 
@@ -78,7 +78,13 @@ export default function Pacients() {
 
     },
     postPatients: async () => {
-      const response = await POST(`/patients`, currentPatient)
+      const fd = new FormData()
+      for (const key: typeof currentPatient in currentPatient) {
+        fd.append(key, currentPatient[key])
+      }
+
+
+      const response = await POST(`/patients`, fd)
       setErrors(response.data ? response.data : {} as errors)
       await requestMethods.getPatients()
 
@@ -183,7 +189,7 @@ export default function Pacients() {
                 <Avatar
                   size="lg"
                   className='h-32 w-32'
-                  src={currentPatient.profileImage}
+                  src={previewImage}
                   classNames={{
                     base: "bg-[#0061EE]",
                     icon: "text-4xl",
@@ -200,20 +206,19 @@ export default function Pacients() {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      setCurrentPatient({
-                        ...currentPatient,
-                        profileImage: URL.createObjectURL(file),
-                      });
+                      {
+                        setPreviewImage(URL.createObjectURL(file));
+                        setCurrentPatient({
+                          ...currentPatient,
+                          profileImage: file,
+                        });
+                      }
                     }
                   }}
                 />
 
               </div>
               <Divider className='my-2' />
-
-
-
-
               <Input
                 label='Nome'
                 isRequired
